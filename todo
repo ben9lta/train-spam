@@ -1,0 +1,13 @@
+// todo: Изменить метод uploadAndTraining в SpamController
+
+// todo: Добавить события на измнения модели - сбросить кеш
+$minutes = 15 * 60;
+        $cacheKey = 'paginate_train_model_user_' . $userId . '_page_' . $page;
+        return Cache::remember($cacheKey, $minutes, function() use ($userId, $page) {
+            return DB::query()->select('id', 'text', 'spam_type')
+                ->from('train_spam_messages')
+                ->where('user_id', $userId)
+                ->orderBy('spam_type')
+                ->orderByDesc('id')
+                ->paginate(20, page: $page);
+        });
