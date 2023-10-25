@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TrainSpamMessage\CheckTrainSpamMessageRequest;
 use App\Http\Requests\TrainSpamMessage\UpdateAndTrainingTrainSpamMessageRequest;
 use App\Http\Requests\TrainSpamMessage\UpdateTrainSpamMessageRequest;
+use App\Models\SpamMessage;
 use App\Models\TrainSpamMessage;
 use App\Services\SpamMessages\SpamMessagesService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,6 +26,11 @@ class SpamController extends Controller
         return $this->spamMessagesService->paginateUserMessages($request, $page);
     }
 
+    public function paginateIncomingUserMessages(Request $request, int $page = 1): LengthAwarePaginator
+    {
+        return $this->spamMessagesService->paginateIncomingUserMessages($request, $page);
+    }
+
     /**
      * @throws AuthorizationException
      */
@@ -31,6 +38,12 @@ class SpamController extends Controller
     {
         $this->authorize('update', $spamMessage);
         return $this->spamMessagesService->update($request, $spamMessage);
+    }
+
+    public function incomingMessageDelete(Request $request, SpamMessage $spamMessage): bool
+    {
+        $this->authorize('delete', $spamMessage);
+        return $this->spamMessagesService->deleteIncomingMessage($spamMessage);
     }
 
     public function train(Request $request): Response
@@ -43,7 +56,7 @@ class SpamController extends Controller
         return Inertia::render('Spam/Check');
     }
 
-    public function check(CheckTrainSpamMessageRequest $request): string
+    public function check(CheckTrainSpamMessageRequest $request): array
     {
         return $this->spamMessagesService->check($request);
     }

@@ -2,12 +2,12 @@
 
 namespace App\Policies;
 
-use App\Models\TrainSpamMessage;
+use App\Models\SpamMessage;
 use App\Models\User;
 
 class SpamMessagePolicy
 {
-    public function update(User $user, TrainSpamMessage $spamMessage): bool
+    public function delete(User $user, SpamMessage $spamMessage): bool
     {
         return $user->id === $spamMessage->user_id;
     }

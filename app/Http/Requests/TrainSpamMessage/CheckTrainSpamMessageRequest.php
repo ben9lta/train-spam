@@ -19,6 +19,10 @@ class CheckTrainSpamMessageRequest extends FormRequest
                 'string',
                 'required',
             ],
+            'request' => [
+                'string',
+                'nullable'
+            ],
             'user_id' => [
                 'required',
                 Rule::exists('users', 'id'),

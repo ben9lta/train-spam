@@ -17,16 +17,9 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
-
 Route::middleware('auth')->group(function () {
+    Route::get('/', [ProfileController::class, 'dashboard'])->name('home');
+
     Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
 
     Route::prefix('profile')->name('profile.')->group(function () {
@@ -42,6 +35,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/check', [SpamController::class, 'check'])->name('check');
         Route::post('/paginate/{page}', [SpamController::class, 'paginateUserMessages'])->name('paginate');
         Route::post('/{spamMessage}', [SpamController::class, 'update'])->name('update');
+        Route::post('/incoming/paginate/{page}', [SpamController::class, 'paginateIncomingUserMessages'])->name('incoming.paginate');
+        Route::post('/incoming/{spamMessage}', [SpamController::class, 'incomingMessageDelete'])->name('incomingMessage.delete');
     });
 
 });

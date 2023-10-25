@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+use App\Models\SpamMessage;
 use App\Models\TrainSpamMessage;
 use App\Policies\SpamMessagePolicy;
+use App\Policies\TrainSpamMessagePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -15,7 +17,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        TrainSpamMessage::class => SpamMessagePolicy::class,
+        TrainSpamMessage::class => TrainSpamMessagePolicy::class,
+        SpamMessage::class      => SpamMessagePolicy::class,
     ];
 
     /**

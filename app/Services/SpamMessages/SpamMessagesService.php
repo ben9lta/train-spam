@@ -7,10 +7,12 @@ use App\Helpers\SpamTypeHelper;
 use App\Http\Requests\TrainSpamMessage\CheckTrainSpamMessageRequest;
 use App\Http\Requests\TrainSpamMessage\UpdateAndTrainingTrainSpamMessageRequest;
 use App\Http\Requests\TrainSpamMessage\UpdateTrainSpamMessageRequest;
+use App\Models\SpamMessage;
 use App\Models\TrainSpamMessage;
 use App\Services\FileService;
 use App\Services\MessageClassifier;
 use App\Traits\TrainSpamTrait;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
 class SpamMessagesService
@@ -33,6 +35,17 @@ class SpamMessagesService
             ->getUserPaginateTrainModel($page);
     }
 
+    public function paginateIncomingUserMessages(Request $request, int $page = 1): LengthAwarePaginator
+    {
+        $userId = $this->getUser($request);
+
+        return SpamMessage::query()
+            ->select('id', 'text', 'spam_type', 'request')
+            ->where('user_id', $userId)
+            ->orderByDesc('id')
+            ->paginate(10, page: $page);
+    }
+
     public function update(UpdateTrainSpamMessageRequest $request, TrainSpamMessage $spamMessage): bool
     {
         $requestData = $request->validated();
@@ -50,7 +63,12 @@ class SpamMessagesService
         return $isSave;
     }
 
-    public function check(CheckTrainSpamMessageRequest $request): string
+    public function deleteIncomingMessage(SpamMessage $spamMessage): bool
+    {
+        return $spamMessage->delete();
+    }
+
+    public function check(CheckTrainSpamMessageRequest $request): array
     {
         $requestData = $request->validated();
         $text = $requestData['text'];
@@ -59,7 +77,38 @@ class SpamMessagesService
         $this->classifier->trainFromDB($userId);
         $classify = $this->classifier->classify($text);
 
-        return SpamTypeHelper::translate($classify);
+        $translateType = SpamTypeHelper::translate($classify);
+
+        return [
+            'type' => $classify,
+            'translate' => $translateType,
+        ];
+    }
+
+    public function insertSpamMessage(CheckTrainSpamMessageRequest $request, int $spamType): bool
+    {
+        $validated = $request->validated();
+        $text = $validated['text'];
+        $userId = $validated['user_id'];
+
+        $isSave = false;
+
+        if ($validated && $request->has('request')) {
+            $requestData = $validated['request'];
+
+            $model = new SpamMessage();
+            $model->fill([
+                'request' => $requestData,
+                'text' => $text,
+                'hashed_text' => md5($text),
+                'user_id' => $userId,
+                'spam_type' => $spamType
+            ]);
+
+            $isSave = $model->save();
+        }
+
+        return $isSave;
     }
 
     public function uploadAndTraining(UpdateAndTrainingTrainSpamMessageRequest $request): void

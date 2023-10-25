@@ -3,6 +3,7 @@ import {Head} from '@inertiajs/react';
 import LoadFile from "@/Pages/Spam/Train/Partials/LoadFile.jsx";
 import {useEffect, useState} from "react";
 import List from "@/Pages/Spam/Train/Partials/List/List.jsx";
+import IncomingList from "@/Pages/Spam/IncomingMessages/Partials/List/List.jsx";
 
 export default function SpamTrain({auth}) {
     const [linkType, setLinkType] = useState(0);
@@ -13,7 +14,7 @@ export default function SpamTrain({auth}) {
             case 1:
                 return <List />;
             case 2:
-                return 123;
+                return <IncomingList />;
             default:
                 return <LoadFile collapsed={LoadFileCollapsed}/>;
         }
@@ -40,7 +41,7 @@ export default function SpamTrain({auth}) {
                     </li>
                     <li onClick={() => setLinkType(2)}
                         className={(linkType === 2 ? activeLinkStyle : null) + " " + linkStyle}>
-                        <a>Что-то еще</a>
+                        <a>Входящие сообщения с сайта</a>
                     </li>
                 </ul>
             }

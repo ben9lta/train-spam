@@ -18,7 +18,7 @@ export default function SpamTrain({auth}) {
 
         axios.post(route('spam.check'), data)
             .then((response) => {
-                setClassify(response.data);
+                setClassify(response.data.translate);
             })
             .finally(() => {
                 setProcessing(false);
