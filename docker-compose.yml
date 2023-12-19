@@ -34,12 +34,26 @@ services:
         networks:
             - sail
         healthcheck:
-            test:
-                - CMD
-                - redis-cli
-                - ping
+            test: redis-cli ping
             retries: 3
             timeout: 5s
+    mysql:
+        image: 'mysql:8.0'
+        ports:
+            - '${DB_MYSQL_PORT:-3310}:3306'
+        environment:
+            DB_MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-secret}'
+            DB_MYSQL_DATABASE: '${DB_DATABASE}'
+            DB_MYSQL_USERNAME: '${DB_USERNAME}'
+            DB_MYSQL_PASSWORD: '${DB_PASSWORD:-secret}'
+        volumes:
+            - 'sail-mysql:/var/lib/mysql'
+        networks:
+            - sail
+        healthcheck:
+            test: "CMD mysqladmin ping -h 127.0.0.1 -U ${DB_MYSQL_USERNAME} --password=${DB_MYSQL_PASSWORD}"
+            retries: 5
+            timeout: 20s
     pgsql:
         image: 'postgres:15'
         ports:
@@ -55,14 +69,7 @@ services:
         networks:
             - sail
         healthcheck:
-            test:
-                - CMD
-                - pg_isready
-                - '-q'
-                - '-d'
-                - '${DB_DATABASE}'
-                - '-U'
-                - '${DB_USERNAME}'
+            test: "CMD pg_isready -q -d ${DB_DATABASE} -U ${DB_USERNAME}"
             retries: 3
             timeout: 5s
 networks:
@@ -72,4 +79,6 @@ volumes:
     sail-redis:
         driver: local
     sail-pgsql:
+        driver: local
+    sail-mysql:
         driver: local
