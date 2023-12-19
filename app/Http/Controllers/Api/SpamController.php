@@ -20,7 +20,7 @@ class SpamController extends Controller
         return $this->spamMessagesService->paginateUserMessages($request, $page);
     }
 
-    public function check(CheckTrainSpamMessageRequest $request)
+    public function check(CheckTrainSpamMessageRequest $request): CheckResource
     {
         $data = $this->spamMessagesService->check($request);
         $this->spamMessagesService->insertSpamMessage($request, $data['type']);

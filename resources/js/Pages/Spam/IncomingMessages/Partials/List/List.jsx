@@ -88,7 +88,7 @@ export default function List() {
                                             {item?.id}
                                         </Table.Cell>
                                         <Table.Cell className="break-all">
-                                            {item?.text}
+                                            {item?.text.substring(0, 250) + '...'}
                                         </Table.Cell>
                                         <Table.Cell>
                                             {translate(item?.spam_type)}

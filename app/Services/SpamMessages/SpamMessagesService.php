@@ -14,6 +14,7 @@ use App\Services\MessageClassifier;
 use App\Traits\TrainSpamTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SpamMessagesService
 {
@@ -88,27 +89,32 @@ class SpamMessagesService
     public function insertSpamMessage(CheckTrainSpamMessageRequest $request, int $spamType): bool
     {
         $validated = $request->validated();
-        $text = $validated['text'];
-        $userId = $validated['user_id'];
 
-        $isSave = false;
-
-        if ($validated && $request->has('request')) {
+        if ($validated && isset($validated['request'])) {
+            $text = $validated['text'];
+            $userId = $validated['user_id'];
             $requestData = $validated['request'];
+            $hashedText = md5($text);
 
-            $model = new SpamMessage();
-            $model->fill([
-                'request' => $requestData,
-                'text' => $text,
-                'hashed_text' => md5($text),
+            $model = SpamMessage::query()->firstOrNew([
                 'user_id' => $userId,
-                'spam_type' => $spamType
+                'hashed_text' => $hashedText,
             ]);
 
-            $isSave = $model->save();
+            if (!$model->exists) {
+                $model->fill([
+                    'request' => $requestData,
+                    'text' => $text,
+                    'hashed_text' => $hashedText,
+                    'user_id' => $userId,
+                    'spam_type' => $spamType
+                ]);
+
+                return $model->save();
+            }
         }
 
-        return $isSave;
+        return false;
     }
 
     public function uploadAndTraining(UpdateAndTrainingTrainSpamMessageRequest $request): void
