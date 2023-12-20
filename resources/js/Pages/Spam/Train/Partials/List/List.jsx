@@ -61,12 +61,13 @@ export default function List() {
                         {
                             selectedItem && <Edit closeModal={closeModal} item={selectedItem} refresh={refreshItems} />
                         }
-                        <Table>
+                        <div className="overflow-x-auto">
+                            <Table>
                             <Table.Head>
                                 <Table.HeadCell>
                                     №
                                 </Table.HeadCell>
-                                <Table.HeadCell>
+                                <Table.HeadCell style={{minWidth: '24rem'}}>
                                     Текст
                                 </Table.HeadCell>
                                 <Table.HeadCell>
@@ -106,6 +107,7 @@ export default function List() {
 
                             </Table.Body>
                         </Table>
+                        </div>
 
                         <div className="flex items-center justify-center text-center">
                             {

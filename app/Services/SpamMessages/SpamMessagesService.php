@@ -41,7 +41,7 @@ class SpamMessagesService
         $userId = $this->getUser($request);
 
         return SpamMessage::query()
-            ->select('id', 'text', 'spam_type', 'request')
+            ->select('id', 'text', 'spam_type', 'request', 'created_at')
             ->where('user_id', $userId)
             ->orderByDesc('id')
             ->paginate(10, page: $page);

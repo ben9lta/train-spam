@@ -42,6 +42,10 @@ export default function List() {
             })
     }
 
+    const transformTime = (time) => {
+        return new Date(time).toLocaleString();
+    }
+
     useEffect(() => getItems(currentPage), []);
 
     useEffect(() => {}, [currentPage]);
@@ -61,19 +65,23 @@ export default function List() {
                         {
                             selectedItem && <Delete closeModal={closeModal} item={selectedItem} refresh={refreshItems} />
                         }
-                        <Table>
+                        <div className="overflow-x-auto">
+                            <Table>
                             <Table.Head>
                                 <Table.HeadCell>
                                     №
                                 </Table.HeadCell>
-                                <Table.HeadCell>
+                                <Table.HeadCell style={{minWidth: '24rem'}}>
                                     Текст
                                 </Table.HeadCell>
                                 <Table.HeadCell>
                                     Категория
                                 </Table.HeadCell>
-                                <Table.HeadCell>
+                                <Table.HeadCell style={{minWidth: '8rem'}}>
                                     Данные с запроса
+                                </Table.HeadCell>
+                                <Table.HeadCell>
+                                    Время
                                 </Table.HeadCell>
                                 <Table.HeadCell>
                                     Действия
@@ -97,6 +105,9 @@ export default function List() {
                                             {item?.request}
                                         </Table.Cell>
                                         <Table.Cell>
+                                            {transformTime(item?.created_at)}
+                                        </Table.Cell>
+                                        <Table.Cell>
                                             <a
                                                 className="font-medium text-cyan-600 hover:underline dark:text-cyan-500"
                                                 onClick={() => openModal(item)}
@@ -112,6 +123,7 @@ export default function List() {
 
                             </Table.Body>
                         </Table>
+                        </div>
 
                         <div className="flex items-center justify-center text-center">
                             {

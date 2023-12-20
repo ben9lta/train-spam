@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 
 use App\Http\Requests\Api\Auth\LoginAuthRequest;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController
