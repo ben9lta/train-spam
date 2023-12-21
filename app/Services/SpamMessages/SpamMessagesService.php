@@ -99,6 +99,7 @@ class SpamMessagesService
             $model = SpamMessage::query()->firstOrNew([
                 'user_id' => $userId,
                 'hashed_text' => $hashedText,
+                'spam_type' => SpamTypeEnum::SPAM
             ]);
 
             if (!$model->exists) {
