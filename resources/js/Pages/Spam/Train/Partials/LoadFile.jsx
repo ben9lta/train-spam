@@ -52,7 +52,10 @@ export default function LoadFile({collapsed}) {
                 onSuccess: () => {
                     removeAllFiles();
                 },
-                onFinish: () => {
+                onError: (e) => {
+                    console.log(e);
+                },
+                onFinish: (e) => {
                     setIsLoading(false);
                 }
             }

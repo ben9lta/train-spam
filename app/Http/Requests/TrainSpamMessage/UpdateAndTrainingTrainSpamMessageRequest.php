@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\TrainSpamMessage;
 
+use App\Rules\JsonFile;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,7 +27,11 @@ class UpdateAndTrainingTrainSpamMessageRequest extends FormRequest
             'files' => [
                 'required',
             ],
-            'files.*' => 'file|mimes:json|max:10000'
+            'files.*' => [
+                'file',
+                'max:10000',
+                new JsonFile()
+            ]
         ];
     }
 
