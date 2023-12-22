@@ -125,15 +125,21 @@ class SpamMessagesService
         $files = $requestData['files'];
         $spamType = SpamTypeEnum::from($requestData['spam_type']);
 
-        $loadedFiles = [];
-        foreach ($files as $file) {
-            $loadedFiles[] = FileService::upload($file, $spamType, $userId);
-        }
+        $this->processFiles($files, $userId, $spamType);
+    }
 
-        foreach ($loadedFiles as $loadedFile) {
-            $this->classifier->trainByFileType($loadedFile, $spamType, $userId);
-            FileService::removeByFilePath($loadedFile, $userId);
+    private function processFiles(array $files, int $userId, SpamTypeEnum $spamType): void
+    {
+        foreach ($files as $file) {
+            $loadedFile = FileService::upload($file, $spamType, $userId);
+            $this->trainClassifierAndRemoveFile($loadedFile, $userId, $spamType);
         }
+    }
+
+    private function trainClassifierAndRemoveFile(string $filePath, int $userId, SpamTypeEnum $spamType): void
+    {
+        $this->classifier->trainByFileType($filePath, $spamType, $userId);
+        FileService::removeByFilePath($filePath, $userId);
     }
 
 }

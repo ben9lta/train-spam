@@ -161,8 +161,7 @@ class MessageClassifier
     private function getDataFromFile(string $jsonFilePath): array
     {
         $file = Storage::get($jsonFilePath);
-        $data = json_decode($file);
-        return $data->array;
+        return json_decode($file);
     }
 
 

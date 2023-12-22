@@ -2,15 +2,28 @@ import {Accordion} from "flowbite-react";
 import {router, useForm} from "@inertiajs/react";
 import {useEffect, useState} from "react";
 import Spinner from "@/Components/Spinner.jsx";
+import {SpamTypeHelper} from '@/Helpers/SpamTypeHelper.jsx';
 
 export default function LoadFile({collapsed}) {
     const [files, setFiles] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm({
-        spam_type: 0,
+        spam_type: SpamTypeHelper.HAM,
         file: [],
     });
+
+    const loadFileOptions = (
+        Object
+            .entries(SpamTypeHelper.getList())
+            .map(([key, value]) =>
+                value !== SpamTypeHelper.COMMON && (
+                    <option key={value} value={value}>
+                        {SpamTypeHelper.translate(value)}
+                    </option>
+                )
+            )
+    );
 
     const convertToMB = (bite) => {
         return (bite / 1000000).toFixed(3);
@@ -76,21 +89,17 @@ export default function LoadFile({collapsed}) {
     }, [files]);
 
 
-    const codeExample = `{
-  "array": [
+    const codeExample = `[
     "Вам постоянно требуется текущий ремонт в офисе? ...",
     "Вы обязательно оцените все преимущества сотрудничества с нами...",
     ...
-  ]
-}`;
+]`;
 
-    const codeExampleCommon = `{
-  "array": [
+    const codeExampleCommon = `[
     "Вам постоянно требуется текущий ремонт в офисе? ...", 1,
     "Вы обязательно оцените все преимущества сотрудничества с нами...", 1,
     ...
-  ]
-}`;
+]`;
 
     const typesExample = `0 - Не спам
 1 - Спам
@@ -170,11 +179,7 @@ export default function LoadFile({collapsed}) {
                                 onChange={handleChange}
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         >
-                            <option value="0">Не спам</option>
-                            <option value="1">Спам</option>
-                            <option value="2">Рекламный</option>
-                            <option value="3">Другой</option>
-                            <option value="-1">Общий</option>
+                            {loadFileOptions}
                         </select>
                     </div>
 

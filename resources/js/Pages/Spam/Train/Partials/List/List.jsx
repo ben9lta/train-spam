@@ -1,7 +1,7 @@
 import {Pagination, Table, Spinner} from 'flowbite-react';
 import {useEffect, useState} from "react";
 import Edit from "@/Pages/Spam/Train/Partials/List/Edit.jsx";
-import {translate} from "@/Helpers/SpamTypeHelper.jsx";
+import {SpamTypeHelper} from "@/Helpers/SpamTypeHelper.jsx";
 
 export default function List() {
     const [paginate, setPaginate] = useState({});
@@ -89,7 +89,7 @@ export default function List() {
                                             {item?.text.substring(0, 250) + '...'}
                                         </Table.Cell>
                                         <Table.Cell>
-                                            {translate(item?.spam_type)}
+                                            {SpamTypeHelper.translate(item?.spam_type)}
                                         </Table.Cell>
                                         <Table.Cell>
                                             <a

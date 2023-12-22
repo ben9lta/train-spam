@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SpamController;
-use Illuminate\Foundation\Application;
+use App\Http\Middleware\StorageMiddleware;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +38,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/incoming/paginate/{page}', [SpamController::class, 'paginateIncomingUserMessages'])->name('incoming.paginate');
         Route::post('/incoming/{spamMessage}', [SpamController::class, 'incomingMessageDelete'])->name('incomingMessage.delete');
     });
+
+    Route::prefix('download')->name('download.')->group(function () {
+        Route::post('/files', [DownloadController::class, 'downloadFiles'])->name('files');
+    });
+
+    Route::get('/storage/user/{id}/{any?}', [DownloadController::class, 'downloadFile'])->where('any', '.*')->middleware([StorageMiddleware::class]);
 
 });
 
