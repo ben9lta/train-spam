@@ -7,11 +7,9 @@ use App\Helpers\FileServiceHelper;
 use App\Http\Requests\Download\DownloadFilesRequest;
 use App\Models\TrainSpamMessage;
 use App\Models\UserFile;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use ZipArchive;
 
 class FileService
@@ -66,6 +64,11 @@ class FileService
 
         $userPrivateFilesPath = FileServiceHelper::getUserPrivateFilesPath($userId);
         $zipFilePath = "$userPrivateFilesPath/SpamTypeFiles.zip";
+
+        if (!Storage::exists($userPrivateFilesPath)) {
+            Storage::makeDirectory($userPrivateFilesPath);
+        }
+
         $zip = new ZipArchive();
         $zip->open(Storage::path($zipFilePath), ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
@@ -119,6 +122,10 @@ class FileService
 
     private static function getUserSpamMessageList(int $userId, array $spamTypes): Collection|array
     {
+        if (in_array(-1, $spamTypes)) {
+            $spamTypes = [SpamTypeEnum::HAM, SpamTypeEnum::SPAM];
+        }
+
         return TrainSpamMessage::query()
             ->select('id', 'text', 'spam_type')
             ->where('user_id', $userId)

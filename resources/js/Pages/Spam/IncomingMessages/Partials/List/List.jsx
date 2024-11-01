@@ -1,5 +1,5 @@
 import {Pagination, Table, Spinner} from 'flowbite-react';
-import {useEffect, useState} from "react";
+import {useEffect, useState, useCallback} from "react";
 import {SpamTypeHelper} from "@/Helpers/SpamTypeHelper.jsx";
 import Delete from "@/Pages/Spam/IncomingMessages/Partials/List/Delete.jsx";
 
@@ -7,54 +7,66 @@ export default function List() {
     const [paginate, setPaginate] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsLoading, setItemsLoading] = useState(false);
-
     const [selectedItem, setSelectedItem] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const queryParams = new URLSearchParams(window.location.search);
 
-    const openModal = (item) => {
-        setSelectedItem(item);
-    }
+    const openModal = useCallback((item) => {
+        if (!isDeleting) {
+            setSelectedItem(item);
+        }
+    }, [isDeleting]);
 
-    const closeModal = () => {
+    const closeModal = useCallback(() => {
         setSelectedItem(null);
-    }
+    }, []);
 
-    const refreshItems = () => {
-        getItems(currentPage);
-    }
+    const handleItemDelete = useCallback((deletedId) => {
+        // Удаляем запись с указанным ID из состояния
+        setPaginate((prevPaginate) => ({
+            ...prevPaginate,
+            data: prevPaginate.data.filter(item => item.id !== deletedId),
+        }));
+    }, []);
 
-    const onPageChange = (page) => {
+    const onPageChange = useCallback((page) => {
         setCurrentPage(page);
+        queryParams.set('page', page);
+        window.history.replaceState(null, '', `?${queryParams.toString()}`);
 
         if (paginate.path) {
             getItems(page);
         }
-    }
+    }, [paginate.path, queryParams]);
 
-    const getItems = (paginatePage) => {
+    const getItems = useCallback(async (paginatePage) => {
         setItemsLoading(true);
+        try {
+            const response = await axios.post(route('spam.incoming.paginate', paginatePage));
+            setPaginate(response.data);
+        } catch (error) {
+            console.error('Ошибка:', error);
+        } finally {
+            setItemsLoading(false);
+        }
+    }, []);
 
-        axios.post(route('spam.incoming.paginate', paginatePage))
-            .then(response => {
-                setPaginate(response.data);
-            })
-            .finally(() => {
-                setItemsLoading(false);
-            })
-    }
 
-    const transformTime = (time) => {
+    const transformTime = useCallback((time) => {
         return new Date(time).toLocaleString();
-    }
+    }, []);
 
-    useEffect(() => getItems(currentPage), []);
-
-    useEffect(() => {}, [currentPage]);
-    useEffect(() => {}, [paginate]);
+    useEffect(() => {
+        getItems(currentPage);
+    }, [currentPage, getItems]);
 
     return (
         <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-            {
-                itemsLoading
+            {isDeleting ? (
+                <div className="text-center">
+                    <Spinner /> Удаление...
+                </div>
+            ) : itemsLoading
                 ? (
                     <div className="text-center">
                         <Spinner size="md"/> Загрузка...
@@ -63,7 +75,12 @@ export default function List() {
                 : (
                     <>
                         {
-                            selectedItem && <Delete closeModal={closeModal} item={selectedItem} refresh={refreshItems} />
+                            selectedItem && <Delete
+                                closeModal={closeModal}
+                                item={selectedItem}
+                                onDelete={handleItemDelete}
+                                setIsDeleting={setIsDeleting}
+                            />
                         }
                         <div className="overflow-x-auto">
                             <Table>
@@ -126,8 +143,7 @@ export default function List() {
                         </div>
 
                         <div className="flex items-center justify-center text-center">
-                            {
-                                paginate?.data && paginate?.total > 0 &&
+                            {paginate?.data && paginate?.total > 0 && (
                                 <Pagination
                                     currentPage={currentPage}
                                     onPageChange={onPageChange}
@@ -135,7 +151,7 @@ export default function List() {
                                     nextLabel={'Далее'}
                                     previousLabel={'Назад'}
                                 />
-                            }
+                            )}
                         </div>
                     </>
                 )

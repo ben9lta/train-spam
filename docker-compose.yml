@@ -42,10 +42,13 @@ services:
         ports:
             - '${DB_MYSQL_PORT:-3310}:3306'
         environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-secret}'
             DB_MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-secret}'
+            DB_DATABASE: '${DB_DATABASE}'
             DB_MYSQL_DATABASE: '${DB_DATABASE}'
             DB_MYSQL_USERNAME: '${DB_USERNAME}'
             DB_MYSQL_PASSWORD: '${DB_PASSWORD:-secret}'
+            MYSQL_ROOT_HOST: '%'
         volumes:
             - 'sail-mysql:/var/lib/mysql'
         networks:
@@ -63,6 +66,7 @@ services:
             POSTGRES_DB: '${DB_DATABASE}'
             POSTGRES_USER: '${DB_USERNAME}'
             POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+            POSTGRES_HOST: '%'
         volumes:
             - 'sail-pgsql:/var/lib/postgresql/data'
             - './vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'

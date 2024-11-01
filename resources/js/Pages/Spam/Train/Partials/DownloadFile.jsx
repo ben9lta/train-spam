@@ -32,10 +32,13 @@ export default function DownloadFile() {
         axios.post(route('download.files'), {spamTypeList: selectedSpamTypeList})
             .then((response) => {
                 const link = response.data.download_link
-                setDownloadLink(link);
                 if (link) {
+                    setDownloadLink(link);
                     window.open(link, '_blank');
                 }
+            })
+            .catch(err => {
+                console.log(err);
             })
             .finally(() => {
                 setIsLoading(false);
